@@ -3,7 +3,7 @@ apply plugin: 'com.android.application'
 android {
     compileSdkVersion 23
     buildToolsVersion "23.0.3"
-    useLibrary  'org.apache.http.legacy'
+    useLibrary 'org.apache.http.legacy'
 
     defaultConfig {
         applicationId "com.android.leopardmediahd"
@@ -17,11 +17,33 @@ android {
         renderscriptSupportModeEnabled true
     }
 
+    // --- AÑADIDO: CONFIGURACIÓN DE FIRMA (usa las 4 variables de ~/.gradle/gradle.properties) ---
+    signingConfigs {
+    release {
+        // Lee las propiedades definidas en ~/.gradle/gradle.properties (Gradle 2.2.1)
+        def P = project
+        def storePath = P.hasProperty('MYAPP_UPLOAD_STORE_FILE') ? P.property('MYAPP_UPLOAD_STORE_FILE') : 'keystore.jks'
+        storeFile file(storePath)
+        storePassword (P.hasProperty('MYAPP_UPLOAD_STORE_PASSWORD') ? P.property('MYAPP_UPLOAD_STORE_PASSWORD') : '')
+        keyAlias     (P.hasProperty('MYAPP_UPLOAD_KEY_ALIAS') ? P.property('MYAPP_UPLOAD_KEY_ALIAS') : 'release')
+        keyPassword  (P.hasProperty('MYAPP_UPLOAD_KEY_PASSWORD') ? P.property('MYAPP_UPLOAD_KEY_PASSWORD') : '')
+    }
+}
+    // ----------------------------------------------------------------------------------------------
+
     buildTypes {
         release {
+            // AÑADIDO: firmar el release con la config anterior
+            signingConfig signingConfigs.release
+
+            // deja sin ofuscación para este toolchain antiguo
             minifyEnabled false
         }
+        debug {
+            // sin cambios para debug
+        }
     }
+
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_1_7
         targetCompatibility JavaVersion.VERSION_1_7
@@ -37,7 +59,7 @@ repositories {
 }
 
 dependencies {
-    compile 'eu.agno3.jcifs:jcifs-ng:2.1.10'
+    compile 'jcifs:jcifs:1.3.17'
 
     compile 'com.android.support:support-v4:23.0.0'
     compile 'com.google.guava:guava:18.0'
